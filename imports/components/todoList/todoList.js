@@ -1,5 +1,6 @@
 import angular from 'angular';
 import angularMeteor from 'angular-meteor';
+import { Meteor } from 'meteor/meteor';
 import { Tasks } from '../../api/tasks.js';
 import template from './todoList.html';
 
@@ -27,45 +28,50 @@ class TodoListCtrl {
                     }
                 });
             },
-            +      incompleteCount() {
-                +        return Tasks.find({
-                    +          checked: {
-                        +            $ne: true
-                        +          }
-                        +        }).count();
+            incompleteCount() {
+                return Tasks.find({
+                    checked: {
+                        $ne: true
                     }
-                })
+                }).count();
+            },
+            currentUser() {
+              return Meteor.user();
             }
+        })
+    }
 
-            addTask(newTask) {
-                // Insert a task into the collection
-                Tasks.insert({
-                    text: newTask,
-                    createdAt: new Date
-                });
-
-                // Clear form
-                this.newTask = '';
-            }
-
-            setChecked(task) {
-                // Set the checked property to the opposite of its current value
-                Tasks.update(task._id, {
-                    $set: {
-                        checked: !task.checked
-                    },
-                });
-            }
-
-            removeTask(task) {
-                Tasks.remove(task._id);
-            }
-        }
-
-        export default angular.module('todoList', [
-            angularMeteor
-        ])
-        .component('todoList', {
-            templateUrl: 'imports/components/todoList/todoList.html',
-            controller: ['$scope', TodoListCtrl]
+    addTask(newTask) {
+        // Insert a task into the collection
+        Tasks.insert({
+            text: newTask,
+            createdAt: new Date,
+            owner: Meteor.userId(),
+            username: Meteor.user().username
         });
+
+        // Clear form
+        this.newTask = '';
+    }
+
+    setChecked(task) {
+        // Set the checked property to the opposite of its current value
+        Tasks.update(task._id, {
+            $set: {
+                checked: !task.checked
+            },
+        });
+    }
+
+    removeTask(task) {
+        Tasks.remove(task._id);
+    }
+}
+
+export default angular.module('todoList', [
+    angularMeteor
+])
+.component('todoList', {
+    templateUrl: 'imports/components/todoList/todoList.html',
+    controller: ['$scope', TodoListCtrl]
+});
