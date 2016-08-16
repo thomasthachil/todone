@@ -8,7 +8,7 @@ angular.module('todone', [
 ]);
 
 function onReady() {
-  angular.bootstrap(document, ['simple-todos']);
+  angular.bootstrap(document, ['todone']);
 }
 
 if (Meteor.isCordova) {
